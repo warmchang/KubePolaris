@@ -84,13 +84,14 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 		api.POST("/clusters/:clusterId/nodes/:name/drain", nodeHandler.DrainNode)
 
 		// Pod管理路由
-		podHandler := handlers.NewPodHandler(db, cfg)
+		podHandler := handlers.NewPodHandler(db, cfg, clusterService)
 		api.GET("/clusters/:clusterId/pods", podHandler.GetPods)
 		api.GET("/clusters/:clusterId/pods/:namespace/:name", podHandler.GetPod)
+		api.DELETE("/clusters/:clusterId/pods/:namespace/:name", podHandler.DeletePod)
 		api.GET("/clusters/:clusterId/pods/:namespace/:name/logs", podHandler.GetPodLogs)
 
 		// 工作负载管理路由
-		workloadHandler := handlers.NewWorkloadHandler(db, cfg)
+		workloadHandler := handlers.NewWorkloadHandler(db, cfg, clusterService)
 		api.GET("/clusters/:clusterId/workloads", workloadHandler.GetWorkloads)
 		api.GET("/clusters/:clusterId/workloads/:namespace/:name", workloadHandler.GetWorkload)
 		api.POST("/clusters/:clusterId/workloads/:namespace/:name/scale", workloadHandler.ScaleWorkload)
