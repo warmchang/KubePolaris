@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkkubepolaris_docs=globalThis.webpackChunkkubepolaris_docs||[]).push([[921],{1597(s){s.exports=JSON.parse('{"name":"@easyops-cn/docusaurus-search-local","id":"default"}')}}]);
