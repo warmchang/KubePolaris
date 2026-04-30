@@ -466,6 +466,18 @@ func Setup(db *gorm.DB, cfg *config.Config, frontendFS embed.FS) (*gin.Engine, *
 					logs.POST("/export", logCenterHandler.ExportLogs)              // 导出日志
 				}
 
+				// Arthas Agent - Pod 级 Java 诊断
+				arthasHandler := handlers.NewArthasHandler(db, cfg, clusterSvc, k8sMgr, auditSvc)
+				arthas := cluster.Group("/pods/:namespace/:name/arthas")
+				arthas.Use(permMiddleware.NamespaceAccessRequired())
+				arthas.Use(permMiddleware.ActionRequired("pod:arthas"))
+				{
+					arthas.GET("/status", arthasHandler.GetStatus)
+					arthas.POST("/sessions", arthasHandler.CreateSession)
+					arthas.POST("/agent/plan", arthasHandler.BuildPlan)
+					arthas.POST("/commands/:id/confirm", arthasHandler.ConfirmCommand)
+				}
+
 				// O&M - 监控中心（运维）
 				omSvc := services.NewOMService(prometheusSvc, monitoringConfigSvc)
 				omHandler := handlers.NewOMHandler(clusterSvc, omSvc, k8sMgr)
@@ -628,6 +640,7 @@ func Setup(db *gorm.DB, cfg *config.Config, frontendFS embed.FS) (*gin.Engine, *
 		kubectlPod := handlers.NewKubectlPodTerminalHandler(clusterSvc, auditSvc, k8sMgr, replayDir)
 		podHandler := handlers.NewPodHandler(db, cfg, clusterSvc, k8sMgr)
 		logCenterHandler := handlers.NewLogCenterHandler(clusterSvc, k8sMgr)
+		arthasHandler := handlers.NewArthasHandler(db, cfg, clusterSvc, k8sMgr, auditSvc)
 
 		// 节点 SSH 终端（需要平台管理员权限）
 		ws.GET("/ssh/terminal", middleware.PlatformAdminRequired(db), ssh.SSHConnect)
@@ -647,6 +660,13 @@ func Setup(db *gorm.DB, cfg *config.Config, frontendFS embed.FS) (*gin.Engine, *
 
 			// Pod 日志流式传输
 			wsCluster.GET("/pods/:namespace/:name/logs", podHandler.StreamPodLogs)
+
+			// Arthas Agent：Pod 级 Java 诊断
+			wsCluster.GET("/pods/:namespace/:name/arthas",
+				permMiddleware.NamespaceAccessRequired(),
+				permMiddleware.ActionRequired("pod:arthas"),
+				arthasHandler.HandleWebSocket,
+			)
 
 			// 日志中心 WebSocket 路由
 			wsCluster.GET("/logs/stream", logCenterHandler.HandleAggregateLogStream)               // 多Pod聚合日志流

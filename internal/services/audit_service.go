@@ -27,6 +27,7 @@ const (
 	TerminalTypeKubectl TerminalType = "kubectl"
 	TerminalTypePod     TerminalType = "pod"
 	TerminalTypeNode    TerminalType = "node"
+	TerminalTypeArthas  TerminalType = "arthas"
 )
 
 // CreateSessionRequest 创建会话请求

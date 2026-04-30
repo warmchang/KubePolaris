@@ -25,6 +25,7 @@ import {
   FileTextOutlined,
   ConsoleSqlOutlined,
   LineChartOutlined,
+  BugOutlined,
 } from '@ant-design/icons';
 import { PodService } from '../../services/podService';
 import { clusterService } from '../../services/clusterService';
@@ -93,6 +94,11 @@ const PodDetail: React.FC<PodDetailProps> = () => {
   // 进入终端 - 新窗口打开
   const handleTerminal = () => {
     window.open(`/clusters/${clusterId}/pods/${namespace}/${name}/terminal`, '_blank');
+  };
+
+  // Java 运行时诊断
+  const handleArthas = () => {
+    navigate(`/clusters/${clusterId}/pods/${namespace}/${name}/arthas`);
   };
 
   useEffect(() => {
@@ -257,6 +263,14 @@ const PodDetail: React.FC<PodDetailProps> = () => {
               disabled={pod.status !== 'Running'}
             >
               {t('actions.terminal')}
+            </Button>
+
+            <Button
+              icon={<BugOutlined />}
+              onClick={handleArthas}
+              disabled={pod.status !== 'Running'}
+            >
+              {t('actions.arthas')}
             </Button>
             
             <Popconfirm

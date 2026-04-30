@@ -14,12 +14,23 @@ type Config struct {
 	Log      LogConfig      `mapstructure:"log"`
 	K8s      K8sConfig      `mapstructure:"k8s"`
 	Terminal TerminalConfig `mapstructure:"terminal"`
+	Arthas   ArthasConfig   `mapstructure:"arthas"`
 }
 
 // TerminalConfig 终端与会话录像
 type TerminalConfig struct {
 	// ReplayDir 会话 asciicast 存储根目录（空表示禁用录像）
 	ReplayDir string `mapstructure:"replay_dir"`
+}
+
+// ArthasConfig Arthas Agent 配置
+type ArthasConfig struct {
+	Enabled         bool   `mapstructure:"enabled"`
+	PackageSource   string `mapstructure:"package_source"`
+	PackageURL      string `mapstructure:"package_url"`
+	AutoExecLowRisk bool   `mapstructure:"auto_exec_low_risk"`
+	SessionTimeout  int    `mapstructure:"session_timeout"`
+	MaxOutputBytes  int64  `mapstructure:"max_output_bytes"`
 }
 
 // ServerConfig 服务器配置
@@ -96,6 +107,14 @@ func Load() *Config {
 	// 终端录像
 	_ = viper.BindEnv("terminal.replay_dir", "TERMINAL_REPLAY_DIR")
 
+	// Arthas Agent
+	_ = viper.BindEnv("arthas.enabled", "ARTHAS_ENABLED")
+	_ = viper.BindEnv("arthas.package_source", "ARTHAS_PACKAGE_SOURCE")
+	_ = viper.BindEnv("arthas.package_url", "ARTHAS_PACKAGE_URL")
+	_ = viper.BindEnv("arthas.auto_exec_low_risk", "ARTHAS_AUTO_EXEC_LOW_RISK")
+	_ = viper.BindEnv("arthas.session_timeout", "ARTHAS_SESSION_TIMEOUT")
+	_ = viper.BindEnv("arthas.max_output_bytes", "ARTHAS_MAX_OUTPUT_BYTES")
+
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
 		logger.Fatal("配置解析失败: %v", err)
@@ -144,4 +163,12 @@ func setDefaults() {
 
 	// 终端录像（默认开启，目录可写即可）
 	viper.SetDefault("terminal.replay_dir", "./data/terminal_replays")
+
+	// Arthas Agent 默认配置
+	viper.SetDefault("arthas.enabled", true)
+	viper.SetDefault("arthas.package_source", "url")
+	viper.SetDefault("arthas.package_url", "https://arthas.aliyun.com/arthas-boot.jar")
+	viper.SetDefault("arthas.auto_exec_low_risk", true)
+	viper.SetDefault("arthas.session_timeout", 30)
+	viper.SetDefault("arthas.max_output_bytes", 1048576)
 }

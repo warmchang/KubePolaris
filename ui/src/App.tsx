@@ -16,6 +16,7 @@ import PodList from './pages/pod/PodList';
 import PodDetail from './pages/pod/PodDetail';
 import PodLogs from './pages/pod/PodLogs';
 import PodTerminal from './pages/pod/PodTerminal';
+import PodArthas from './pages/pod/PodArthas';
 import WorkloadList from './pages/workload/WorkloadList';
 import WorkloadDetail from './pages/workload/WorkloadDetail';
 import DeploymentCreate from './pages/workload/DeploymentCreate';
@@ -131,6 +132,7 @@ const AppContent: React.FC = () => {
               <Route path="clusters/:clusterId/pods/:namespace/:name" element={<PodDetail />} />
               <Route path="clusters/:clusterId/pods/:namespace/:name/logs" element={<PodLogs />} />
               <Route path="clusters/:clusterId/pods/:namespace/:name/terminal" element={<PodTerminal />} />
+              <Route path="clusters/:clusterId/pods/:namespace/:name/arthas" element={<PodArthas />} />
               <Route path="clusters/:clusterId/workloads" element={<WorkloadList />} />
               <Route path="clusters/:clusterId/workloads/create" element={<DeploymentCreate />} />
               <Route path="clusters/:clusterId/workloads/deployment/:namespace/:name" element={<DeploymentDetail />} />
